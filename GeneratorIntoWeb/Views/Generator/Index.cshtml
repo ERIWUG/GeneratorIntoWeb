@@ -1,7 +1,17 @@
 ﻿@{
     ViewData["Title"] = "Ticket";
 }
-
-<div>
-    Ticket
-</div>
+<head>
+    <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
+</head>
+<body>
+    <div >
+        <form class="form-question">
+            <h1>Вопрос</h1>
+                <input  type="radio" value="1" name="question" />
+                <input type="radio" value="2" name="question" />
+                <input type="radio" value="3" name="question" />
+            <input type="submit" />
+        </form>
+    </div>
+</body>

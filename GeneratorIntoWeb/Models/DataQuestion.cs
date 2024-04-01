@@ -1,6 +1,12 @@
-﻿using System.Drawing;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Drawing;
 
 namespace GeneratorIntoWeb.Models
 {
     public class DataQuestion(string text, int type, bool flag);
+
+    public class MyData(string n,string text,int type,bool flag) : DataQuestion(text,type,flag)
+    {
+        string N = n;
+    }
 }

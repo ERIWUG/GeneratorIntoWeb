@@ -1,2 +1,12 @@
 ﻿body {
+
+
+
+
 }
+
+.form-question{
+    display:flex;
+    flex-direction:column;
+}
+
