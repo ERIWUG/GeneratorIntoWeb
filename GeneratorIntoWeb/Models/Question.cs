@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GeneratorIntoWeb
+namespace GeneratorIntoWeb.Models
 {
     [Serializable]
     public class Question
@@ -30,7 +30,7 @@ namespace GeneratorIntoWeb
             Console.WriteLine(questionText);
             for (int i = 0; i < answers.Length; i++)
                 Console.WriteLine(answers[i]);
-            Console.WriteLine("Номер правильного ответа: "+correctAnswer +"\n"+QuestionHash);
+            Console.WriteLine("Номер правильного ответа: " + correctAnswer + "\n" + QuestionHash);
         }
     };
 }
