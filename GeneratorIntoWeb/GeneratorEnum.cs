@@ -1,10 +1,10 @@
-﻿using System;
+﻿using GeneratorIntoWeb.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using GeneratorIntoWeb.Models;
 
 namespace GeneratorIntoWeb
 {
@@ -86,11 +86,11 @@ namespace GeneratorIntoWeb
                 int allOrNo = rand.Next(3);
                 if (allOrNo == 0)//если как обчно
                 {
-                    GenerateQuest1(a, b, k - 1);
+                    GenerateQuest1(a, b, k - 2);
                 }
                 else if (allOrNo == 1)//если все являются
                 {
-                    while (k-- > 0)
+                    while (k-- > 1)
                     {
                         int IA = rand.Next(a.Count);
                         var AA = mas[a[IA]];
@@ -103,12 +103,12 @@ namespace GeneratorIntoWeb
                     ans2.Add(ANSW2);
                     MyHash += $"A1-";
                     MyHash += $"A2-";
-                    questions[l] = new Question(AQQQQ, ans2.ToArray(), kk , MyHash + (kk ));
+                    questions[l] = new Question(AQQQQ, ans2.ToArray(), kk, MyHash + (kk));
                     l++;
                 }
                 else if (allOrNo == 2)//если все не являются
                 {
-                    while (k-- > 0)
+                    while (k-- > 1)
                     {
                         int IA = rand.Next(b.Count);
                         var AA = mas[b[IA]];
@@ -136,7 +136,7 @@ namespace GeneratorIntoWeb
                 int k = rand.Next(4, ogr);
                 int IQ = rand.Next(intQuest.Count);
                 var AQ = mas[intQuest[IQ]];
-                MyHash += $"{IQ}-{k + 2}-";
+                MyHash += $"{IQ}-{k + 1}-";
                 AQQQQ = AQ.text;
                 if (!AQ.flag)
                 {
@@ -253,13 +253,13 @@ namespace GeneratorIntoWeb
                 int allOrNo = rand.Next(3);
                 if (allOrNo == 0)//если как обчно
                 {
-                    GenerateQuest1(a, b, k - 2);        
+                    GenerateQuest1(a, b, k - 1);
                 }
                 else if (allOrNo == 1)//если все являются
                 {
                     List<int> appearedAnswers = new List<int>();
                     int ca = 0;
-                    while (k-- > 0 && ca < k)
+                    while (k-- > 1 && ca < k)
                     {
                         if (a.Count == 0) break;
                         int IA = rand.Next(a.Count);
@@ -294,13 +294,13 @@ namespace GeneratorIntoWeb
                     ans2.Add(ANSW2);
                     myHash += $"A1-";
                     myHash += $"A2-";
-                    questions[l] = new Question(AQQQQ, ans2.ToArray(), kk , myHash + (kk));
+                    questions[l] = new Question(AQQQQ, ans2.ToArray(), kk - 3, myHash + (kk - 3));
                     l++;
                 }
                 else if (allOrNo == 2)//если все не являются
                 {
                     int ca = 0;
-                    while (k-- > 0&&ca<k)
+                    while (k-- > 1 && ca < k)
                     {
                         if (b.Count == 0) break;
                         int IA = rand.Next(b.Count);
@@ -333,7 +333,7 @@ namespace GeneratorIntoWeb
                     ans2.Add(ANSW2);
                     myHash += $"A1-";
                     myHash += $"A2-";
-                    questions[l] = new Question(AQQQQ, ans2.ToArray(), kk + 1, myHash + (kk + 1));
+                    questions[l] = new Question(AQQQQ, ans2.ToArray(), kk - 2, myHash + (kk - 2));
                     l++;
                 }
 
@@ -346,18 +346,18 @@ namespace GeneratorIntoWeb
                 myHash = MyHash;
                 List<int> mT = intTrueAns.Slice(0, intTrueAns.Count);
                 List<int> mF = intFalseAns.Slice(0, intFalseAns.Count);
-                int k = rand.Next(2, ogr);
+                int k = rand.Next(3, ogr);
                 int IQ = rand.Next(intQuest.Count);
                 var AQ = mas[intQuest[IQ]];
                 AQQQQ = AQ.text;
-                myHash += $"{IQ}-{k + 2}-";
+                myHash += $"{IQ}-{k + 1}-";
                 if (!AQ.flag)
                 {
-                    GenerateQuest(mF, mT, k);
+                    GenerateQuest(mF, mT, k + 2);
                 }
                 else
                 {
-                    GenerateQuest(mT, mF, k);
+                    GenerateQuest(mT, mF, k + 2);
                 }
 
             }
