@@ -2,30 +2,36 @@
 
 @{
     ViewData["Title"] = "Ticket";
+    int i = 0;
 }
+<head>
+    <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
+</head>
 
-<h1>Ticket</h1>
+<body>
+    <form class="form-question">
+        @foreach(var item in Model)
+        {
+            string idAns = $"question{i}";
 
-<table class="table">
-    <thead>
-        <tr>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <ol>
-@foreach (var item in Model) {
-    <li>
+            <input type="hidden" value="@item.QuestionHash"> 
+            <h2>@item.questionText</h2>
+            int q = 0;
 
-                    @item.questionText<br>
-                    <ol>
-                    @foreach (var ans in item.answers){
-                       <li> @ans </li>
-                    }
-                        </ol>
-    <br>
-                </li>
-}
-            </ol>
-    </tbody>
-</table>
+            @foreach(var ans in item.answers)
+            {
+
+                <div class="radioDiv">
+                    <input type="radio" name=@idAns  />
+                    <label for=@idAns+"ans"+@Convert.ToString(q)>@ans</label><br>
+                </div>
+            }
+            i++;
+            
+            
+        }
+        <input type="submit" value="Отправить"/>
+    </form>
+
+
+</body>
