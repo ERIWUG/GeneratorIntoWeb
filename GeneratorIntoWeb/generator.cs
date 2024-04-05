@@ -23,29 +23,33 @@ namespace GeneratorIntoWeb
         /// </summary>
         /// <param name="originalList"></param>
         /// <Author>Veremeychik Alex</Author>
-        public static int Shuffling(List<string> originalList,int index)
+        public static int Shuffling(List<string> originalList, int index, List<string> HashShufflingList)
         {
 
             Random random = new Random();
             for (int i = originalList.Count - 1; i >= 1; i--)
             {
-                
+
                 int j = random.Next(i + 1);
                 // Обменять значения originalList[j] и originalList[i]
                 string temp = originalList[j];
                 originalList[j] = originalList[i];
                 originalList[i] = temp;
+                temp = HashShufflingList[j];
+                HashShufflingList[j] = HashShufflingList[i];
+                HashShufflingList[i] = temp;
+
                 if (i == index)
                 {
-                    
+
                     index = j;
                 }
                 else if (j == index)
                 {
-                    
+
                     index = i;
                 }
-                
+
             }
             return index;
         }

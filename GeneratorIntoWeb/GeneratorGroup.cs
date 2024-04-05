@@ -1,9 +1,9 @@
-﻿using System;
+﻿using GeneratorIntoWeb.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GeneratorIntoWeb.Models;
 
 namespace GeneratorIntoWeb
 {
@@ -15,7 +15,6 @@ namespace GeneratorIntoWeb
         /// <param name="ogr"></param>
         /// <param name="amount"></param>
         /// <Author>Alex Veremeychik</Author>>
-
         public static Question[] GenerateGroup(MyData[] mas, int ogr, int amount)
         {
             Question[] questions = new Question[amount];
@@ -30,11 +29,12 @@ namespace GeneratorIntoWeb
             List<string> CorrectAnswers = new List<string>();
             List<string> GroupOfAnswers = new List<string>();
             List<string> randomElements = new List<string>();
-            int IndexOfCorrectAnswer=0;
+            List<string> AnswersHashList = new List<string>();
+            int IndexOfCorrectAnswer = 0;
 
             int IndAnswer = 0;
             int l = 0;
-            string AQQQQ = null;
+            string QuestionText = null;
             string MyHash = "DBNAME-GX-";
 
             void ParseData(MyData[] mas)
@@ -86,30 +86,57 @@ namespace GeneratorIntoWeb
                 }
                 randomElements.Sort((a, b) => list.IndexOf(a).CompareTo(list.IndexOf(b)));
                 return String.Join("; ", randomElements);
-                
+
 
             }
 
-            
+            string GetHashOfAnswer(List<string> list)
+            {
+                string TempHash = "";
+                if (list.Count != 0)
+                {
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        if (i + 1 < list.Count)
+                        {
+                            TempHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == list[i]).i},";
+
+                        }
+                        else
+                        {
+                            TempHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == list[i]).i}";
+
+                        }
+                    }
+                }
+                else
+                {
+                    TempHash += "A2";
+                }
+                return TempHash;
+            }
+
+
 
 
             void GenerateAnswers(List<int> full, bool sign, int num)
             {
                 int k = num;
+                //генерация блока ответов
                 while (k-- > 0)
                 {
-                    
+
                     int IA = rand.Next(full.Count);
                     var AA = mas[full[IA]];
                     full.RemoveAt(IA);
-                    Console.WriteLine($"----{AA.text},  {AA.flag}\n");
+                    //Console.WriteLine($"----{AA.text},  {AA.flag}\n");
                     AllAnsw.Add(AA.text);
                     if (sign)
                     {
                         if (AA.flag)
                         {
                             CorrectAnswers.Add(AA.text);
-                            
+
                         }
                     }
                     else
@@ -117,34 +144,15 @@ namespace GeneratorIntoWeb
                         if (!AA.flag)
                         {
                             CorrectAnswers.Add(AA.text);
-                            
-                        }
-                    }
-
-                    
-                }
-                if (CorrectAnswers.Count!=0)
-                {
-                    for (int i = 0; i < CorrectAnswers.Count; i++)
-                    {
-                        if (i + 1 < CorrectAnswers.Count)
-                        {
-                            MyHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == CorrectAnswers[i]).i},";
-
-                        }
-                        else
-                        {
-                            MyHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == CorrectAnswers[i]).i}";
 
                         }
                     }
-                }
-                else
-                {
-                    MyHash += "A2";
+
+
                 }
 
-                
+
+
                 string CorrectString = String.Join("; ", CorrectAnswers);
 
                 if (CorrectString == null || CorrectAnswers.Count == 0)
@@ -154,11 +162,17 @@ namespace GeneratorIntoWeb
 
                 int minvalue = 3;
                 int maxvalue = 5;
-                if (AllAnsw.Count == 3)
+                if (AllAnsw.Count <= 3)
                 {
                     maxvalue = 4;
                 }
                 int NumberOfAnswers = rand.Next(minvalue, maxvalue);
+                MyHash += GetHashOfAnswer(AllAnsw);
+
+                MyHash += "-" + $"{NumberOfAnswers}";
+
+                AnswersHashList.Add(GetHashOfAnswer(CorrectAnswers));
+
 
                 GroupOfAnswers.Add(CorrectString);
                 while (GroupOfAnswers.Count < NumberOfAnswers)
@@ -167,44 +181,38 @@ namespace GeneratorIntoWeb
                     if (!GroupOfAnswers.Contains(randomString))
                     {
                         GroupOfAnswers.Add(randomString);
-                        if (randomElements.Count != 0)
-                        {
-                            MyHash += $"-";
-                            for (int i = 0; i < randomElements.Count; i++)
-                            {
-                                if (i + 1 < randomElements.Count)
-                                {
-                                    MyHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == randomElements[i]).i},";
+                        AnswersHashList.Add(GetHashOfAnswer(randomElements));
 
-                                }
-                                else
-                                {
-                                    MyHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == randomElements[i]).i}";
-
-                                }
-                            }
-                        }
-                        else
-                        {
-                            MyHash += "-A2";
-                        }
                     }
                 }
                 IndexOfCorrectAnswer = 0;
                 int n = 0;
-                IndexOfCorrectAnswer=Shuffling(GroupOfAnswers,IndexOfCorrectAnswer);
+                IndexOfCorrectAnswer = Shuffling(GroupOfAnswers, IndexOfCorrectAnswer, AnswersHashList);
+
+
+
+
+                //добавление блока ответов в строку вопроса
+                QuestionText += "-" + String.Join("\n-", AllAnsw);
+
+                MyHash += "-" + String.Join("-", AnswersHashList);
+                MyHash += $"-{IndexOfCorrectAnswer}";
+                questions[l] = new Question(QuestionText, GroupOfAnswers.ToArray(), IndexOfCorrectAnswer, MyHash);
+                l++;
+                Console.WriteLine();
+                Console.WriteLine(QuestionText);
+                Console.WriteLine();
                 foreach (string str in GroupOfAnswers)
                 {
                     n++;
                     Console.WriteLine(Convert.ToString(n) + " " + str);
                 }
-                Console.WriteLine($"Index of correct answer - {IndexOfCorrectAnswer}");
-                questions[l] = new Question(AQQQQ, GroupOfAnswers.ToArray(), IndexOfCorrectAnswer, MyHash + "-0");
-                l++;
-                GroupOfAnswers.Clear();
-                MyHash += "-0";
                 Console.WriteLine(MyHash);
-                Console.WriteLine() ;
+
+                GroupOfAnswers.Clear();
+                AnswersHashList.Clear();
+
+
             }
 
 
@@ -220,10 +228,10 @@ namespace GeneratorIntoWeb
                 var AQ = mas[intQuest[IQ]];
                 AllAnsw.Clear();
                 CorrectAnswers.Clear();
-                MyHash += $"{IQ}-{AmountOfAnswersWithQuestion}-";
-                AQQQQ = AQ.text;
+                MyHash += $"{IQ}-";
+                QuestionText = AQ.text + "\n";
 
-                Console.WriteLine($"{AQ.text}\n");
+                //Console.WriteLine($"{AQ.text}\n");
                 if (!AQ.flag)
                 {
                     GenerateAnswers(Answers, false, AmountOfAnswersWithQuestion);
@@ -234,7 +242,7 @@ namespace GeneratorIntoWeb
                 }
 
             }
-            
+
             return questions;
 
         }
@@ -261,14 +269,16 @@ namespace GeneratorIntoWeb
             List<string> CorrectAnswers = new List<string>();
             List<string> GroupOfAnswers = new List<string>();
             List<string> randomElements = new List<string>();
-            int IndexOfCorrectAnswer=0;
+            List<string> AnswersHashList = new List<string>();
+
+            int IndexOfCorrectAnswer = 0;
 
             int IndAnswer = 0;
             int l = 0;
-            string AQQQQ = null;
+            string QuestionText = null;
             string MyHash = "DBNAME-GX-";
 
-            void ParseData(MyData[] mas)
+            void ParseData(MyDataWithProbability[] mas)
             {
                 int i = -1;
                 while (i++ < mas.Length - 1)
@@ -321,7 +331,31 @@ namespace GeneratorIntoWeb
 
             }
 
+            string GetHashOfAnswer(List<string> list)
+            {
+                string TempHash = "";
+                if (list.Count != 0)
+                {
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        if (i + 1 < list.Count)
+                        {
+                            TempHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == list[i]).i},";
 
+                        }
+                        else
+                        {
+                            TempHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == list[i]).i}";
+
+                        }
+                    }
+                }
+                else
+                {
+                    TempHash += "A2";
+                }
+                return TempHash;
+            }
 
 
             void GenerateAnswers(List<int> full, bool sign, int num)
@@ -339,7 +373,7 @@ namespace GeneratorIntoWeb
                         if (rnd == 1)
                         {
                             full.RemoveAt(IA);
-                            Console.WriteLine($"----{AA.text},  {AA.flag}\n");
+                            //Console.WriteLine($"----{AA.text},  {AA.flag}\n");
                             AllAnsw.Add(AA.text);
                             if (sign)
                             {
@@ -381,26 +415,7 @@ namespace GeneratorIntoWeb
 
 
                 }
-                if (CorrectAnswers.Count != 0)
-                {
-                    for (int i = 0; i < CorrectAnswers.Count; i++)
-                    {
-                        if (i + 1 < CorrectAnswers.Count)
-                        {
-                            MyHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == CorrectAnswers[i]).i},";
 
-                        }
-                        else
-                        {
-                            MyHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == CorrectAnswers[i]).i}";
-
-                        }
-                    }
-                }
-                else
-                {
-                    MyHash += "A2";
-                }
 
 
                 string CorrectString = String.Join("; ", CorrectAnswers);
@@ -412,11 +427,18 @@ namespace GeneratorIntoWeb
 
                 int minvalue = 3;
                 int maxvalue = 5;
-                if (AllAnsw.Count == 3)
+                if (AllAnsw.Count <= 3)
                 {
                     maxvalue = 4;
                 }
                 int NumberOfAnswers = rand.Next(minvalue, maxvalue);
+                MyHash += GetHashOfAnswer(AllAnsw);
+
+                MyHash += "-" + $"{NumberOfAnswers}";
+
+                AnswersHashList.Add(GetHashOfAnswer(CorrectAnswers));
+
+                //MyHash += "-" + String.Join("",AnswersHashList);
 
                 GroupOfAnswers.Add(CorrectString);
                 while (GroupOfAnswers.Count < NumberOfAnswers)
@@ -425,48 +447,38 @@ namespace GeneratorIntoWeb
                     if (!GroupOfAnswers.Contains(randomString))
                     {
                         GroupOfAnswers.Add(randomString);
-                        if (randomElements.Count != 0)
-                        {
-                            MyHash += $"-";
-                            for (int i = 0; i < randomElements.Count; i++)
-                            {
-                                if (i + 1 < randomElements.Count)
-                                {
-                                    MyHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == randomElements[i]).i},";
+                        AnswersHashList.Add(GetHashOfAnswer(randomElements));
 
-                                }
-                                else
-                                {
-                                    MyHash += $"{mas.Select((obj, i) => new { obj, i }).First(p => p.obj.text == randomElements[i]).i}";
-
-                                }
-                            }
-                        }
-                        else
-                        {
-                            MyHash += "-A2";
-                        }
                     }
                 }
                 IndexOfCorrectAnswer = 0;
                 int n = 0;
-                IndexOfCorrectAnswer = Shuffling(GroupOfAnswers, IndexOfCorrectAnswer);
+                IndexOfCorrectAnswer = Shuffling(GroupOfAnswers, IndexOfCorrectAnswer, AnswersHashList);
 
+
+
+
+                //добавление блока ответов в строку вопроса
+                QuestionText += "-" + String.Join("\n-", AllAnsw);
+
+                MyHash += "-" + String.Join("-", AnswersHashList);
+                MyHash += $"-{IndexOfCorrectAnswer}";
+                questions[l] = new Question(QuestionText, GroupOfAnswers.ToArray(), IndexOfCorrectAnswer, MyHash);
+                l++;
+                Console.WriteLine();
+                Console.WriteLine(QuestionText);
+                Console.WriteLine();
                 foreach (string str in GroupOfAnswers)
                 {
                     n++;
                     Console.WriteLine(Convert.ToString(n) + " " + str);
                 }
-                Console.WriteLine();
-                questions[l] = new Question(AQQQQ, GroupOfAnswers.ToArray(), IndAnswer, MyHash + "-0");
-
-                Console.WriteLine($"Index of correct answer - {IndexOfCorrectAnswer}");
-                questions[l] = new Question(AQQQQ, GroupOfAnswers.ToArray(), IndexOfCorrectAnswer, MyHash + "-0");
-                l++;
-                GroupOfAnswers.Clear();
-                MyHash += "-0";
                 Console.WriteLine(MyHash);
-                Console.WriteLine();
+
+                GroupOfAnswers.Clear();
+                AnswersHashList.Clear();
+
+
             }
 
 
@@ -482,10 +494,10 @@ namespace GeneratorIntoWeb
                 var AQ = mas[intQuest[IQ]];
                 AllAnsw.Clear();
                 CorrectAnswers.Clear();
-                MyHash += $"{IQ}-{AmountOfAnswersWithQuestion}-";
-                AQQQQ = AQ.text;
+                MyHash += $"{IQ}-";
+                QuestionText = AQ.text + "\n";
 
-                Console.WriteLine($"{AQ.text}\n");
+                //Console.WriteLine($"{AQ.text}\n");
                 if (!AQ.flag)
                 {
                     GenerateAnswers(Answers, false, AmountOfAnswersWithQuestion);
