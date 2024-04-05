@@ -1,5 +1,7 @@
 ﻿using GeneratorIntoWeb.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace GeneratorIntoWeb.Controllers
 {
@@ -7,6 +9,7 @@ namespace GeneratorIntoWeb.Controllers
     {
         public IActionResult Ticket()
         {
+           
             //массив создан здесь для отладки
             var mas = new MyData[]{
 
@@ -42,6 +45,21 @@ namespace GeneratorIntoWeb.Controllers
     };
             List <Question>questions =
           Generator.GenerateTicket(mas, 10).ToList();
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationContext>();
+            var options = optionsBuilder
+              // .UseSqlServer(@"Server=(localdb)\VIC1;Database=chepel;Trusted_Connection=True;")
+              .UseSqlServer(@"Server=localhost;Database=chepel;Trusted_Connection=True;TrustServerCertificate = True;")
+          //  .UseSqlServer(@"Server=localhost;Database=chepel; TrustServerCertificate = True;")
+          //   .UseSqlServer("Server=localhost; Database=chepel; User Id=qqq; Password=111; TrustServerCertificate=True;")
+
+               .Options;
+            using (ApplicationContext db = new ApplicationContext(options))
+            {
+               foreach (MyData m in mas)
+                    db.Add(m);
+                db.SaveChanges();
+            }
+            
             return View(questions);
         }
 
@@ -50,8 +68,7 @@ namespace GeneratorIntoWeb.Controllers
             return View();
         }
 
-
-
+       
 
 
 
