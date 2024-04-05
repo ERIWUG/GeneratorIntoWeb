@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using GeneratorIntoWeb.Models;
+using Newtonsoft.Json.Linq;
 
 namespace GeneratorIntoWeb
 {
@@ -163,17 +164,35 @@ namespace GeneratorIntoWeb
             {
                 questionIndex = int.Parse(words[2]);
                 question = mas[questionIndex].text; //надо будет заменить на чтение из БД
-                int amountOfAnswers = words.Length-5;
+                int amountOfAnswers = words.Length - 5;
+                int step = 4;
+
+                if (genType == "GX")
+                {
+                    amountOfAnswers = words.Length - 6;
+                    step = 5;
+                    string[] BlockOfAnswNumbers = words[3].Split(',');
+                    int[] ans = new int[BlockOfAnswNumbers.Length];
+                    for (int i = 0; i < ans.Length; i++)
+                        ans[i] = int.Parse(BlockOfAnswNumbers[i]);
+                    string OneOfAnsw = "";
+                    for (int i = 0; i < ans.Length; i++)
+                        OneOfAnsw += "\n-" + (mas[ans[i]].text);
+                    question += $"{OneOfAnsw}";
+
+                }
+
                 answers = new String[amountOfAnswers];
 
                 for (int i = 0; i < amountOfAnswers; i++)
                 {
                     int answersIndex = 0;
-                    string value = words[i + 4];
-                    if (words[i + 4] == $"A1") answers[i] = (i + 1) + ") " + "Все перечисленное";
-                    else if (words[i + 4] == $"A2") answers[i] = (i + 1) + ") " + "Ничего из перечисленного";
+                    string value = words[i + step];
+                    if (words[i + step] == $"A1") answers[i] = (i + 1) + ") " + "Все перечисленное";
+                    else if (words[i + step] == $"A2") answers[i] = (i + 1) + ") " + "Ничего из перечисленного";
                     else if (genType == "GX")
                     {
+                        
                         string[] ansNumbers = value.Split(',');
                         int[] ans = new int[ansNumbers.Length];
                         for (int j = 0; j < ans.Length; j++)
@@ -185,11 +204,11 @@ namespace GeneratorIntoWeb
                     }
                     else
                     {
-                        answersIndex = int.Parse(words[i + 4]);
+                        answersIndex = int.Parse(words[i + step]);
                         answers[i] = (i+1)+") "+mas[answersIndex].text;//надо будет заменить на чтение из БД
                     }
                 }
-                  rightAnswer = int.Parse(words[4 + amountOfAnswers]);
+                  rightAnswer = int.Parse(words[step + amountOfAnswers]);
             }
                Question q = new Question(question, answers, rightAnswer, hash);
                 return q;
